@@ -25,7 +25,7 @@ __global__ void generate_table(int* table, int table_size, int n) {
     a, b are index pointers to the index of the start of each rotation 
 */
 
-__device__ bool compare_rotations(const int& a, const int& b, char* genome, int n) {
+__device__ bool compare_rotations(const int& a, const int& b, char* arr, int n) {
     if (a < 0) {
         return false;
     }
@@ -33,28 +33,28 @@ __device__ bool compare_rotations(const int& a, const int& b, char* genome, int 
         return true;
     }
     for(size_t i = 0; i < n; i++) {
-        if (genome[(a + i) % n] != genome[(b + i) % n]) {
-            return genome[(a + i) % n] < genome[(b + i) % n];
+        if (arr[(a + i) % n] != arr[(b + i) % n]) {
+            return arr[(a + i) % n] < arr[(b + i) % n];
         }
     }
     return false;
 }
 
 
-__global__ void bitonic_sort_step(int* table, int table_size, int j, int k, char* genome, int n) {
+__global__ void bitonic_sort_step(int* table, int table_size, int j, int k, char* arr, int n) {
     unsigned int i = threadIdx.x + blockDim.x * blockIdx.x;
     unsigned int ixj = i ^ j;
     if(i < table_size) {
         if(ixj > i) {
             if ((i & k) == 0) {
-                if (compare_rotations(table[ixj], table[i], genome, n)) {
+                if (compare_rotations(table[ixj], table[i], arr, n)) {
                     int temp = table[i];
                     table[i] = table[ixj];
                     table[ixj] = temp;
                 }
             }
             if ((i & k) != 0) {
-                if (compare_rotations(table[i], table[ixj], genome, n)) {
+                if (compare_rotations(table[i], table[ixj], arr, n)) {
                     int temp = table[i];
                     table[i] = table[ixj];
                     table[ixj] = temp;
